@@ -1,0 +1,16 @@
+# The repository stores LF and checks out LF on every platform. CI runs on
+# Linux, so keeping the working copy consistent avoids diffs that are nothing
+# but line endings.
+* text=auto eol=lf
+
+# Binary assets are never converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.zip binary
