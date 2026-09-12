@@ -148,9 +148,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <p className="mt-2 text-sm text-muted">
               Source code, Playwright suite and CI workflow live in the project repository.
             </p>
-            <p className="mt-2 font-mono text-xs text-muted">
-              {/* Intentionally a placeholder: no repository URL is invented here. */}
-              &lt;add-your-repository-url-here&gt;
+            <p className="mt-2 text-sm">
+              <a
+                href="https://github.com/mgkaran/test-automation-enablement-playbook"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-xs text-accent hover:underline"
+              >
+                github.com/mgkaran/test-automation-enablement-playbook
+              </a>
             </p>
             <p className="mt-4 text-xs text-muted">
               No confidential information, internal architecture, production data or credentials of

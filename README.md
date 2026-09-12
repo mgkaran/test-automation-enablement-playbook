@@ -162,8 +162,9 @@ building them without one would produce exactly the fabricated data this project
 
 ## Repository
 
-The repository URL is intentionally left as a placeholder in the site footer - no URL is invented
-here. Replace it in [`src/components/Layout.tsx`](./src/components/Layout.tsx) when publishing.
+https://github.com/mgkaran/test-automation-enablement-playbook
+
+The site footer links to the same repository.
 
 ## Licence
 
