@@ -19,10 +19,23 @@ export interface TestCredentials {
   password: string;
 }
 
+/**
+ * Reads a variable, treating blank as "not configured".
+ *
+ * A GitHub Actions secret that does not exist is injected as an empty string
+ * rather than left undefined, so `process.env.X ?? fallback` silently yields an
+ * empty credential and the suite fails somewhere far away from the cause. This
+ * project's own pipeline did exactly that on its first run.
+ */
+function fromEnv(name: string): string | undefined {
+  const value = process.env[name];
+  return value !== undefined && value.trim().length > 0 ? value : undefined;
+}
+
 export function getCredentials(): TestCredentials {
   return {
-    username: process.env.TEST_USERNAME ?? DEMO_USERNAME,
-    password: process.env.TEST_PASSWORD ?? DEMO_PASSWORD,
+    username: fromEnv('TEST_USERNAME') ?? DEMO_USERNAME,
+    password: fromEnv('TEST_PASSWORD') ?? DEMO_PASSWORD,
   };
 }
 

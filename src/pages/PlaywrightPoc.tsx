@@ -76,10 +76,17 @@ const API_SPEC = `test('filters by category', async ({ request }) => {
   expect(body.items.every((item) => item.category === 'Access')).toBe(true);
 });`;
 
-const CREDENTIALS = `export function getCredentials(): TestCredentials {
+const CREDENTIALS = `// A GitHub Actions secret that does not exist is injected as an empty
+// string rather than left undefined, so blank is treated as "not configured".
+function fromEnv(name: string): string | undefined {
+  const value = process.env[name];
+  return value !== undefined && value.trim().length > 0 ? value : undefined;
+}
+
+export function getCredentials(): TestCredentials {
   return {
-    username: process.env.TEST_USERNAME ?? DEMO_USERNAME,
-    password: process.env.TEST_PASSWORD ?? DEMO_PASSWORD,
+    username: fromEnv('TEST_USERNAME') ?? DEMO_USERNAME,
+    password: fromEnv('TEST_PASSWORD') ?? DEMO_PASSWORD,
   };
 }`;
 

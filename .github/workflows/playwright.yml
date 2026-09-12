@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -43,8 +43,10 @@ jobs:
         run: npm test
         env:
           # Credentials come from the repository/environment secret store, never
-          # from the repository itself. The demo app falls back to its published
-          # placeholder values when these are not configured.
+          # from the repository itself. A secret that is not configured arrives
+          # as an empty string rather than as an absent variable, so the suite
+          # treats blank as "not configured" and falls back to the demo app's
+          # published placeholder values - see playwright/utils/config.ts.
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
 
@@ -52,7 +54,7 @@ jobs:
       # make a red build diagnosable without re-running it.
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-report
           path: playwright-report/
@@ -60,7 +62,7 @@ jobs:
 
       - name: Upload test results (traces, screenshots, videos)
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results
           path: test-results/
