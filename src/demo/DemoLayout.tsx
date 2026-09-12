@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { isStaticDemo } from './demoClient.ts';
 
 function demoNavClasses({ isActive }: { isActive: boolean }): string {
   return isActive
@@ -24,6 +25,13 @@ export default function DemoLayout() {
       <p className="bg-warn-soft px-5 py-2 text-center text-xs text-warn">
         Demo application with fictional data. It exists only as a target for the Playwright
         demonstration suite.
+        {isStaticDemo ? (
+          <>
+            {' '}
+            On this hosted copy there is no server, so the demo endpoints run in the browser. The
+            test suite runs against the real HTTP endpoints locally and in CI.
+          </>
+        ) : null}
       </p>
 
       <header className="border-b border-line">

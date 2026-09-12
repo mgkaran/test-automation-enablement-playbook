@@ -1,0 +1,83 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: read the repository, publish Pages, and use OIDC for the
+# deployment identity. Nothing here needs write access to the repository.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and queued rather than cancelled: cancelling a
+# half-finished deployment is a good way to publish a broken site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify the published site
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The published build differs from the one the main suite exercises: it is
+      # served from a sub-path and answers the demo endpoints in the browser
+      # rather than over HTTP. So it gets tested here, before it is deployed -
+      # testing one artifact and shipping another is how a green pipeline ends up
+      # protecting nothing.
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Test the static build
+        run: npx playwright test --project=chromium tests/ui
+        env:
+          DEMO_MODE: static
+
+      - name: Build for Pages
+        run: npm run build:pages
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Upload Playwright report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: pages-playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

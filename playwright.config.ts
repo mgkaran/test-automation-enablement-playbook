@@ -9,7 +9,19 @@ import { defineConfig, devices } from '@playwright/test';
  */
 
 /** The site and the demo API are served from the same origin - see vite.config.ts. */
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4173';
+const ORIGIN = (process.env.BASE_URL ?? 'http://localhost:4173').replace(/\/+$/, '');
+
+/**
+ * The GitHub Pages build is served from a sub-path and runs the demo endpoints
+ * in the browser instead of over HTTP, so `DEMO_MODE=static` points the suite at
+ * that build. CI runs the UI tests both ways: what is deployed is tested, not
+ * only what runs locally.
+ */
+const staticDemo = process.env.DEMO_MODE === 'static';
+const REPO_BASE = '/test-automation-enablement-playbook/';
+
+// Ends with a slash so that specs can use paths relative to the deployed base.
+const BASE_URL = staticDemo ? `${ORIGIN}${REPO_BASE}` : `${ORIGIN}/`;
 
 const isCI = Boolean(process.env.CI);
 
@@ -58,12 +70,18 @@ export default defineConfig({
   },
 
   projects: [
-    {
-      name: 'api',
-      testDir: './tests/api',
-      // No browser is launched for API tests: they use the `request` fixture.
-      use: { baseURL: BASE_URL },
-    },
+    // The API project is skipped for the static build, which has no HTTP
+    // endpoints to test - the browser answers those calls there.
+    ...(staticDemo
+      ? []
+      : [
+          {
+            name: 'api',
+            testDir: './tests/api',
+            // No browser is launched for API tests: they use the `request` fixture.
+            use: { baseURL: BASE_URL },
+          },
+        ]),
     {
       name: 'chromium',
       testDir: './tests/ui',
@@ -83,7 +101,9 @@ export default defineConfig({
   // a clean checkout. In CI the server is always started fresh; locally an
   // already-running preview server is reused.
   webServer: {
-    command: 'npm run build && npm run preview',
+    command: staticDemo
+      ? 'npm run build:pages && npm run preview:pages'
+      : 'npm run build && npm run preview',
     url: BASE_URL,
     reuseExistingServer: !isCI,
     timeout: 120_000,

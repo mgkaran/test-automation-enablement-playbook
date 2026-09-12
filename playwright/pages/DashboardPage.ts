@@ -13,6 +13,6 @@ export class DashboardPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/demo/dashboard');
+    await this.page.goto('demo/dashboard');
   }
 }

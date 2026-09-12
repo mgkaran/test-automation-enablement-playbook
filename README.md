@@ -100,6 +100,10 @@ documented in the file. Tests are independent and run in parallel.
 
 ## CI/CD
 
+Two workflows. [`playwright.yml`](./.github/workflows/playwright.yml) tests every push and pull
+request to `main`; [`deploy.yml`](./.github/workflows/deploy.yml) tests and publishes the hosted
+build (see [Hosting](#hosting)).
+
 [`.github/workflows/playwright.yml`](./.github/workflows/playwright.yml) runs on every push and pull
 request to `main`, and can be triggered manually:
 
@@ -113,6 +117,39 @@ Install browsers -> Run tests -> Upload report and artifacts
 - The HTML report is uploaded whether the run passes or fails; traces, screenshots and videos are
   uploaded on failure.
 - Credentials come from the repository secret store as environment variables.
+
+## Hosting
+
+The site is published to GitHub Pages as a project page:
+
+**https://mgkaran.github.io/test-automation-enablement-playbook/**
+
+[`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) builds and deploys it on every push
+to `main`. Three things differ between the local build and the published one, and each is a
+deliberate decision:
+
+| | Local / CI | Published |
+| --- | --- | --- |
+| Base path | served from `/` | served from `/test-automation-enablement-playbook/`, so the build sets `--base` and the router takes its `basename` from `import.meta.env.BASE_URL` |
+| Demo endpoints | Vite middleware over HTTP | the same functions running in the browser, selected at build time by `VITE_DEMO_MODE=static` |
+| Unknown routes | dev server SPA fallback | a copy of `index.html` published as `404.html` |
+
+Two consequences worth stating plainly:
+
+- A deep link such as `/approach` is served by `404.html`, so the page renders correctly but the
+  HTTP status is 404. That is inherent to SPA routing on GitHub Pages.
+- The published build is not byte-identical to the one the main suite exercises, so the deploy
+  workflow runs the UI tests against the static build *before* publishing it. Testing one artifact
+  and shipping another is how a green pipeline ends up protecting nothing.
+
+The static mode is a build-time decision rather than a runtime fallback on purpose: a client that
+quietly fell back to local data whenever a request failed would let a UI test pass while the real
+API was broken - the silent fallback the test data guardrail warns about.
+
+```bash
+npm run build:pages    # production build for the sub-path, plus the 404.html fallback
+npm run preview:pages  # serve it locally on :4173 under the same sub-path
+```
 
 ## Design decisions
 

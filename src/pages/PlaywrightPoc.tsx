@@ -158,6 +158,19 @@ export default function PlaywrightPoc() {
               thing a real project should not copy.
             </p>
           </Callout>
+          <Callout variant="note" label="If you are reading this on the hosted site">
+            <p>
+              Static hosting has no server to answer the demo endpoints, so that build runs them in
+              the browser instead - the same functions the HTTP handler calls, selected at build
+              time rather than by a runtime fallback. A client that silently fell back whenever a
+              request failed could let a UI test pass while the real API was broken.
+            </p>
+            <p>
+              The suite runs against the real HTTP endpoints locally and in CI, and the deploy
+              pipeline runs the UI tests against the published build before publishing it. Testing
+              one artifact and shipping another is how a green pipeline ends up protecting nothing.
+            </p>
+          </Callout>
         </Section>
 
         <Section

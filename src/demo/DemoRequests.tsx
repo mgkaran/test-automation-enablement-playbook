@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CATEGORIES, type ServiceRequest } from './demoData.ts';
+import { fetchCatalog } from './demoClient.ts';
 
 export default function DemoRequests() {
   const [term, setTerm] = useState('');
@@ -9,14 +10,14 @@ export default function DemoRequests() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const params = new URLSearchParams();
-    if (term.trim().length > 0) params.set('q', term.trim());
-    if (category !== 'All') params.set('category', category);
+    const query = {
+      q: term.trim().length > 0 ? term.trim() : undefined,
+      category: category !== 'All' ? category : undefined,
+    };
 
-    fetch(`/api/demo/catalog?${params.toString()}`, { signal: controller.signal })
-      .then((response) => response.json() as Promise<{ items: ServiceRequest[] }>)
-      .then((body) => {
-        setItems(body.items);
+    fetchCatalog(query, controller.signal)
+      .then((results) => {
+        setItems(results);
         setFailed(false);
       })
       .catch((error: unknown) => {

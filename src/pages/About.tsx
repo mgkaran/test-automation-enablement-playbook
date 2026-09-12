@@ -130,11 +130,16 @@ export default function About() {
                 'Vite middleware',
                 'Serves the demo endpoints from the same origin in dev and preview - no second process, no CORS configuration',
               ],
+              [
+                'Hosting',
+                'GitHub Pages',
+                'A static project page. The published build runs the demo endpoints in the browser, and the deploy pipeline tests that build before publishing it',
+              ],
             ]}
           />
           <P>
-            The site has no analytics, no tracking and no backend. The repository link in the footer
-            is a placeholder: no repository URL is invented here.
+            The site has no analytics, no tracking and no backend. The source, the Playwright suite
+            and both CI workflows are in the repository linked in the footer.
           </P>
         </Section>
 

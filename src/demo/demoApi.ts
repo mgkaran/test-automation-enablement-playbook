@@ -8,7 +8,7 @@
  * is the right thing here.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { DEMO_CREDENTIALS, SERVICE_REQUESTS, filterRequests } from './demoData.ts';
+import { SERVICE_REQUESTS, authenticate, filterRequests } from './demoData.ts';
 
 const API_PREFIX = '/api/demo';
 
@@ -68,18 +68,8 @@ export async function handleDemoApi(req: IncomingMessage, res: ServerResponse): 
     const username = asString((body as Record<string, unknown>).username);
     const password = asString((body as Record<string, unknown>).password);
 
-    if (username.length === 0 || password.length === 0) {
-      sendJson(res, 400, { error: 'Username and password are required.' });
-      return true;
-    }
-    if (username !== DEMO_CREDENTIALS.username || password !== DEMO_CREDENTIALS.password) {
-      sendJson(res, 401, { error: 'Invalid username or password.' });
-      return true;
-    }
-    sendJson(res, 200, {
-      token: 'demo-session-token',
-      displayName: DEMO_CREDENTIALS.displayName,
-    });
+    const { status, ...payload } = authenticate(username, password);
+    sendJson(res, status, payload);
     return true;
   }
 

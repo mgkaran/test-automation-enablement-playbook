@@ -20,7 +20,7 @@ export class RequestsPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/demo/requests');
+    await this.page.goto('demo/requests');
   }
 
   async searchFor(term: string): Promise<void> {

@@ -20,7 +20,7 @@ export class LoginPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/demo/login');
+    await this.page.goto('demo/login');
   }
 
   async login(username: string, password: string): Promise<void> {

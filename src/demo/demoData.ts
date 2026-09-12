@@ -43,6 +43,27 @@ export const DEMO_CREDENTIALS = {
   displayName: 'Demo User',
 } as const;
 
+export type AuthResult =
+  | { status: 200; token: string; displayName: string }
+  | { status: 400 | 401; error: string };
+
+/**
+ * The sign-in rules, in one place.
+ *
+ * Both the HTTP middleware and the in-browser mode used on static hosting call
+ * this, so the two cannot drift apart and start telling the user different
+ * things.
+ */
+export function authenticate(username: string, password: string): AuthResult {
+  if (username.length === 0 || password.length === 0) {
+    return { status: 400, error: 'Username and password are required.' };
+  }
+  if (username !== DEMO_CREDENTIALS.username || password !== DEMO_CREDENTIALS.password) {
+    return { status: 401, error: 'Invalid username or password.' };
+  }
+  return { status: 200, token: 'demo-session-token', displayName: DEMO_CREDENTIALS.displayName };
+}
+
 export interface CatalogQuery {
   q?: string;
   category?: string;

@@ -26,7 +26,7 @@ export class RegisterPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/demo/register');
+    await this.page.goto('demo/register');
   }
 
   async fill(details: Partial<RegistrationDetails>): Promise<void> {

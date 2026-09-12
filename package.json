@@ -14,7 +14,9 @@
     "test:ui": "playwright test --project=chromium tests/ui",
     "test:api": "playwright test --project=api tests/api",
     "test:headed": "playwright test --project=chromium --headed",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "build:pages": "tsc --noEmit && vite build --mode static --base=/test-automation-enablement-playbook/ && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
+    "preview:pages": "vite preview --port 4173 --strictPort --base=/test-automation-enablement-playbook/"
   },
   "dependencies": {
     "react": "^19.3.0",

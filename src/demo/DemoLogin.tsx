@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login as submitLogin } from './demoClient.ts';
 import { writeSession } from './session.ts';
 
 interface FieldErrors {
@@ -27,18 +28,13 @@ export default function DemoLogin() {
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/demo/login', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      const body = (await response.json()) as { displayName?: string; error?: string };
+      const result = await submitLogin(username, password);
 
-      if (!response.ok) {
-        setFormError(body.error ?? 'Sign in failed.');
+      if (!result.ok) {
+        setFormError(result.error ?? 'Sign in failed.');
         return;
       }
-      writeSession({ displayName: body.displayName ?? username });
+      writeSession({ displayName: result.displayName ?? username });
       navigate('/demo/dashboard');
     } catch {
       setFormError('The demo service is not reachable.');
